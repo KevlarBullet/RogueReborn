@@ -1,0 +1,5 @@
+name: ${project.name}
+version: ${project.version}
+main: me.silver.rogue.RogueReborn
+author: Silver
+description: WiR pls
