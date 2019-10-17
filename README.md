@@ -1,0 +1,3 @@
+Some dumb name because trademarks!
+
+Feel free to contribute/yell at me to work or this'll never get done...
