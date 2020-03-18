@@ -5,44 +5,30 @@ import java.util.Random;
 
 public class Chunk {
 
-    private int chunkX;
-    private int chunkZ;
+    final int chunkX;
+    final int chunkZ;
+    final long chunkPos;
 
-    private ArrayList<Point> points;
-    private ArrayList<Room> intersectedRooms;
+    private ArrayList<Point> points = new ArrayList<>();
 
     private static Random random = new Random(System.currentTimeMillis());
 
-    public Chunk(int chunkX, int chunkZ, int pointDensity) {
+    public Chunk(int chunkX, int chunkZ, long chunkPos) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
-
-        this.points = new ArrayList<>();
-        this.intersectedRooms = new ArrayList<>();
+        this.chunkPos = chunkPos;
     }
 
-    //TODO: Verify that 2 points don't have the same position
-    public void generatePoints(int minPoints, int maxPoints) {
-        if (minPoints > maxPoints) {
-            int temp = minPoints;
-
-            maxPoints = minPoints;
-            minPoints = temp;
-        }
-
-        int count = random.nextInt(maxPoints - minPoints) + minPoints;
-
-        for (int i = 0; i < count; i++) {
-            int posX = random.nextInt(16);
-            int posZ = random.nextInt(16);
-            int pointX = this.chunkX << 4 + posX;
-            int pointZ = this.chunkZ << 4 + posZ;
-
-            this.points.add(new Point(pointX, pointZ));
-        }
+    ArrayList<Point> getPoints() {
+        return this.points;
     }
 
-    long toLong(int x) {
-        return (long) x & 4294967295L;
+    void addPoint(Point point) {
+        this.points.add(point);
     }
+
+    static long toLong(int chunkX, int chunkZ) {
+        return ((long) chunkX | ((long) chunkZ) << 32);
+    }
+
 }

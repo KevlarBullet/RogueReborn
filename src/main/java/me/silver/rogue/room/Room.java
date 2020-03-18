@@ -52,4 +52,9 @@ public class Room {
         this.cornerOne = new Vector(maxX, maxY, maxZ);
         this.cornerTwo = new Vector(minX, minY, minZ);
     }
+
+    public void spawnMob() {
+        
+    }
+
 }
