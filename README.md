@@ -2,5 +2,5 @@ Renamed because copyrights
 
 Feel free to contribute/yell at me to work or this'll never get done...
 
-#TODO:
+# TODO:
 * Implement more efficient method of finding nearby points, because _damn_...
