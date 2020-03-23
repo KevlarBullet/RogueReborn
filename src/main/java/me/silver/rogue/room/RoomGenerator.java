@@ -63,8 +63,9 @@ public class RoomGenerator {
                 int size = random.nextInt(12) + 5;
 
                 // Check all neighboring chunks for nearby points
-                for (int x = chunk.chunkX - 1; x <= chunk.chunkX + 1; x++) {
-                    for (int z = chunk.chunkZ - 1; z <= chunk.chunkZ + 1; z++) {
+                // Horribly inefficient, optimize search for points
+                for (int x = chunk.chunkX - 2; x <= chunk.chunkX + 2; x++) {
+                    for (int z = chunk.chunkZ - 2; z <= chunk.chunkZ + 2; z++) {
                         Chunk otherChunk = this.getChunk(x, z);
 
                         if (otherChunk != null) {
@@ -87,6 +88,26 @@ public class RoomGenerator {
                 block.setType(Material.WOOL);
                 block.setData(color);
 
+                for (int x = point.getTrueX() - size; x <= point.getTrueX() + size; x++) {
+                    block = world.getBlockAt(x, y, point.getTrueZ() + size);
+                    block.setType(Material.WOOL);
+                    block.setData(color);
+
+                    block = world.getBlockAt(x, y, point.getTrueZ() - size);
+                    block.setType(Material.WOOL);
+                    block.setData(color);
+                }
+
+                for (int z = point.getTrueZ() - size; z <= point.getTrueZ() + size; z++) {
+                    block = world.getBlockAt(point.getTrueX() + size, y, z);
+                    block.setType(Material.WOOL);
+                    block.setData(color);
+
+                    block = world.getBlockAt(point.getTrueX() - size, y, z);
+                    block.setType(Material.WOOL);
+                    block.setData(color);
+                }
+
                 // Continue to the next cycle to generate another room without first adding a ring of chunks
                 continue generator;
             }
@@ -102,9 +123,9 @@ public class RoomGenerator {
         bottomRight.setLeft(bottomRight.getLeft() + 1);
         bottomRight.setRight(bottomRight.getRight() + 1);
 
-        Bukkit.getLogger().info("Generating new chunk ring...");
-        Bukkit.getLogger().info("Top Left: " + topLeft.toString());
-        Bukkit.getLogger().info("Bottom Right: " + bottomRight.toString());
+//        Bukkit.getLogger().info("Generating new chunk ring...");
+//        Bukkit.getLogger().info("Top Left: " + topLeft.toString());
+//        Bukkit.getLogger().info("Bottom Right: " + bottomRight.toString());
 
         for (int x = topLeft.getLeft(); x <= bottomRight.getLeft(); x++) {
             getOrGenerateChunk(x, topLeft.getRight());
