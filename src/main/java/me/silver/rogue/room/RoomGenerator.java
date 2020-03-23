@@ -17,8 +17,6 @@ public class RoomGenerator {
 
     private final Random random = new Random(System.currentTimeMillis());
 
-    private static List<DyeColor> colors = Arrays.asList(DyeColor.values());
-
     private HashMap<Long, Chunk> chunkMap = new HashMap<>();
     private ArrayList<Chunk> availableChunks = new ArrayList<>();
     private ArrayList<Room> rooms = new ArrayList<>();;
@@ -41,6 +39,7 @@ public class RoomGenerator {
     }
 
     // Holy crap, do some unit tests before writing this much code!
+    // This definitely does not work as intended...
     public void generatePoints(int count) {
 
         // For debugging only
@@ -49,6 +48,10 @@ public class RoomGenerator {
 //        DyeColor color = colors.get(random.nextInt(16));
 
         Chunk origin = this.getOrGenerateChunk(chunkOriginX, chunkOriginZ);
+//        getOrGenerateChunk(chunkOriginX + 1, chunkOriginZ);
+//        getOrGenerateChunk(chunkOriginX + 1, chunkOriginZ + 1);
+//        getOrGenerateChunk(chunkOriginX, chunkOriginZ + 1);
+
         int generatedPoints = 0;
 
         generator:while (generatedPoints < count) {
@@ -67,7 +70,7 @@ public class RoomGenerator {
                         if (otherChunk != null) {
                             for (Point point : otherChunk.getPoints()) {
                                 // If generated rooms would overlap then continue to next try
-                                if (!point.checkDistance(pointX, pointZ, x, z, size)) continue counter;
+                                if (!point.checkDistance(pointX, pointZ, chunk.chunkX, chunk.chunkZ, size)) continue counter;
                             }
                         }
                     }
@@ -91,10 +94,6 @@ public class RoomGenerator {
             // Add a ring of chunks after 3 failed attempts to generate a room without overlapping another room
             this.addChunkRing();
         }
-
-        for (Chunk chunk : availableChunks) {
-            Bukkit.getLogger().info(String.format("(%d, %d)", chunk.chunkX, chunk.chunkZ));
-        }
     }
 
     private void addChunkRing() {
@@ -102,6 +101,10 @@ public class RoomGenerator {
         topLeft.setRight(topLeft.getRight() - 1);
         bottomRight.setLeft(bottomRight.getLeft() + 1);
         bottomRight.setRight(bottomRight.getRight() + 1);
+
+        Bukkit.getLogger().info("Generating new chunk ring...");
+        Bukkit.getLogger().info("Top Left: " + topLeft.toString());
+        Bukkit.getLogger().info("Bottom Right: " + bottomRight.toString());
 
         for (int x = topLeft.getLeft(); x <= bottomRight.getLeft(); x++) {
             getOrGenerateChunk(x, topLeft.getRight());
