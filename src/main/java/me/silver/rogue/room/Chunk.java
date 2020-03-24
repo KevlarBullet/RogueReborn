@@ -1,7 +1,7 @@
 package me.silver.rogue.room;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
 public class Chunk {
 
@@ -9,9 +9,8 @@ public class Chunk {
     final int chunkZ;
     final long chunkPos;
 
+    // Contains both points whose generated rooms would overlap this chunk and points directly within this chunk
     private ArrayList<Point> points = new ArrayList<>();
-
-    private static Random random = new Random(System.currentTimeMillis());
 
     public Chunk(int chunkX, int chunkZ, long chunkPos) {
         this.chunkX = chunkX;
@@ -19,7 +18,7 @@ public class Chunk {
         this.chunkPos = chunkPos;
     }
 
-    ArrayList<Point> getPoints() {
+    List<Point> getPoints() {
         return this.points;
     }
 

@@ -1,7 +1,9 @@
 package me.silver.rogue.room;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 public class Room {
@@ -17,40 +19,32 @@ public class Room {
 
     public Room(World world, Vector cornerOne, Vector cornerTwo) {
         this.world = world;
+        this.cornerOne = cornerOne;
+        this.cornerTwo = cornerTwo;
+    }
 
-        double maxX;
-        double minX;
-        double maxY;
-        double minY;
-        double maxZ;
-        double minZ;
+    public void buildRoom(int y, byte color) {
+        Block block;
 
-        if (cornerOne.getX() >= cornerTwo.getX()) {
-            maxX = cornerOne.getX();
-            minX = cornerTwo.getX();
-        } else {
-            maxX = cornerTwo.getX();
-            minX = cornerOne.getX();
+        for (int x = (int)cornerOne.getX(); x <= (int)cornerTwo.getX(); x++) {
+            block = world.getBlockAt(x, y, (int)cornerOne.getZ());
+            block.setType(Material.WOOL);
+            block.setData(color);
+
+            block = world.getBlockAt(x, y, (int)cornerTwo.getZ());
+            block.setType(Material.WOOL);
+            block.setData(color);
         }
 
-        if (cornerOne.getY() >= cornerTwo.getY()) {
-            maxY = cornerOne.getY();
-            minY = cornerTwo.getY();
-        } else {
-            maxY = cornerTwo.getY();
-            minY = cornerOne.getY();
-        }
+        for (int z = (int)cornerOne.getZ() + 1; z <= (int)cornerTwo.getZ() - 1; z++) {
+            block = world.getBlockAt((int)cornerOne.getX(), y, z);
+            block.setType(Material.WOOL);
+            block.setData(color);
 
-        if (cornerOne.getZ() >= cornerTwo.getZ()) {
-            maxZ = cornerOne.getZ();
-            minZ = cornerTwo.getZ();
-        } else {
-            maxZ = cornerTwo.getZ();
-            minZ = cornerOne.getZ();
+            block = world.getBlockAt((int)cornerTwo.getX(), y, z);
+            block.setType(Material.WOOL);
+            block.setData(color);
         }
-
-        this.cornerOne = new Vector(maxX, maxY, maxZ);
-        this.cornerTwo = new Vector(minX, minY, minZ);
     }
 
     public void spawnMob() {

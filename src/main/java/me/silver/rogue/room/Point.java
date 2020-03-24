@@ -26,20 +26,11 @@ public class Point {
      */
     public boolean checkDistance(int pointX, int pointZ, int chunkX, int chunkZ, int size) {
         int minimumDistance = this.size + size + 1;
+        int trueXOther = (chunkX  << 4) + pointX;
+        int trueZOther = (chunkZ  << 4) + pointZ;
 
-//        System.out.printf("## pX: %d, pZ: %d, cX: %d, cZ: %d\n", pointX, pointZ, chunkX, chunkZ);
-
-        int actualXOther = (chunkX  << 4) + pointX;
-        int actualZOther = (chunkZ  << 4) + pointZ;
-
-//        System.out.printf("## aXC: %d, aZC: %d, aXO: %d, aZO: %d\n", actualXCurrent, actualZCurrent, actualXOther, actualZOther);
-
-        return Math.abs(this.getTrueX() - actualXOther) >= minimumDistance
-                || Math.abs(this.getTrueZ() - actualZOther) >= minimumDistance;
-
-//        System.out.println("-Point distance check failed");
-//        System.out.printf("--Minimum distance: %d\n", minimumDistance);
-//        System.out.printf("--Actual distances: %d, %d\n", Math.abs(actualXCurrent - actualXOther), Math.abs(actualZCurrent - actualZOther));
+        return Math.abs(this.getTrueX() - trueXOther) >= minimumDistance
+                || Math.abs(this.getTrueZ() - trueZOther) >= minimumDistance;
     }
 
     public int getTrueX() {

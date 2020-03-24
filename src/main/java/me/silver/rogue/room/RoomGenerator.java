@@ -1,21 +1,18 @@
 package me.silver.rogue.room;
 
 import me.silver.rogue.util.Pair;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.material.Wool;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
 public class RoomGenerator {
 
-//    private final int xOrigin;
-//    private final int zOrigin;
-
     private final Random random = new Random(System.currentTimeMillis());
+
+    private final World world;
 
     private HashMap<Long, Chunk> chunkMap = new HashMap<>();
     private ArrayList<Chunk> availableChunks = new ArrayList<>();
@@ -27,10 +24,8 @@ public class RoomGenerator {
     private Pair<Integer, Integer> bottomRight;
     private final int y;
 
-    public RoomGenerator(int xOrigin, int y, int zOrigin) {
-//        this.xOrigin = xOrigin;
-//        this.zOrigin = zOrigin;
-
+    public RoomGenerator(World world, int xOrigin, int y, int zOrigin) {
+        this.world = world;
         this.chunkOriginX = xOrigin >> 4;
         this.chunkOriginZ = zOrigin >> 4;
         this.y = y;
@@ -38,21 +33,12 @@ public class RoomGenerator {
         this.bottomRight = new Pair<>(chunkOriginX, chunkOriginZ);
     }
 
-    // Holy crap, do some unit tests before writing this much code!
-    // This definitely does not work as intended...
     public void generatePoints(int count) {
-
-        // For debugging only
-        World world = Bukkit.getWorld("world");
-        byte color = (byte)random.nextInt(16);
-//        DyeColor color = colors.get(random.nextInt(16));
-
-        Chunk origin = this.getOrGenerateChunk(chunkOriginX, chunkOriginZ);
-//        getOrGenerateChunk(chunkOriginX + 1, chunkOriginZ);
-//        getOrGenerateChunk(chunkOriginX + 1, chunkOriginZ + 1);
-//        getOrGenerateChunk(chunkOriginX, chunkOriginZ + 1);
-
+        // Generate center chunk
+        availableChunks.add(getOrGenerateChunk(chunkOriginX, chunkOriginZ));
         int generatedPoints = 0;
+
+        byte color = (byte)random.nextInt(16);
 
         generator:while (generatedPoints < count) {
             // Try 3 times to generate a point
@@ -62,48 +48,58 @@ public class RoomGenerator {
                 int pointZ = random.nextInt(16);
                 int size = random.nextInt(12) + 5;
 
-                // Check all neighboring chunks for nearby points
-                // Horribly inefficient, optimize search for points
-                for (int x = chunk.chunkX - 2; x <= chunk.chunkX + 2; x++) {
-                    for (int z = chunk.chunkZ - 2; z <= chunk.chunkZ + 2; z++) {
-                        Chunk otherChunk = this.getChunk(x, z);
+                Point point = new Point(pointX, pointZ, size, chunk);
 
-                        if (otherChunk != null) {
-                            for (Point point : otherChunk.getPoints()) {
+                List<Chunk> overlappedChunks = new ArrayList<>();
+                Map<Point, Point> checkedPoints = new HashMap<>();
+
+                for (int x = (pointX - size >> 4) + chunk.chunkX; x <= (pointX + size >> 4) + chunk.chunkX; x++) {
+                    for (int z = (pointZ - size >> 4) + chunk.chunkZ; z <= (pointZ + size >> 4) + chunk.chunkZ; z++) {
+                        Chunk otherChunk = this.getOrGenerateChunk(x, z);
+
+                        for (Point otherPoint : otherChunk.getPoints()) {
+                            if (!checkedPoints.containsKey(otherPoint) && otherPoint.checkDistance(pointX, pointZ, chunk.chunkX, chunk.chunkZ, size)) {
+                                checkedPoints.put(otherPoint, otherPoint);
+                            } else {
                                 // If generated rooms would overlap then continue to next try
-                                if (!point.checkDistance(pointX, pointZ, chunk.chunkX, chunk.chunkZ, size)) continue counter;
+                                continue counter;
                             }
                         }
+
+                        overlappedChunks.add(otherChunk);
                     }
                 }
+//                chunk.addPoint(new Point(pointX, pointZ, size, chunk));
 
                 // If we've made it this far then all points for a given try were far enough from each other to allow
                 // for a room to be generated without overlap
-                Point point = new Point(pointX, pointZ, size, chunk);
+                for (Chunk overlappedChunk : overlappedChunks) {
+                    overlappedChunk.addPoint(point);
+                }
 
-                chunk.addPoint(point);
                 generatedPoints++;
 
-                Block block = world.getBlockAt(point.getTrueX(), y, point.getTrueZ());
-                block.setType(Material.WOOL);
-                block.setData(color);
+                this.rooms.add(new Room(this.world, new Vector(pointX - size, y, pointZ - size),
+                        new Vector(pointX + size, y, pointZ + size)));
+
+                Block block;
 
                 for (int x = point.getTrueX() - size; x <= point.getTrueX() + size; x++) {
-                    block = world.getBlockAt(x, y, point.getTrueZ() + size);
+                    block = world.getBlockAt(x, y, point.getTrueZ() - size);
                     block.setType(Material.WOOL);
                     block.setData(color);
 
-                    block = world.getBlockAt(x, y, point.getTrueZ() - size);
+                    block = world.getBlockAt(x, y, point.getTrueZ() + size);
                     block.setType(Material.WOOL);
                     block.setData(color);
                 }
 
-                for (int z = point.getTrueZ() - size; z <= point.getTrueZ() + size; z++) {
-                    block = world.getBlockAt(point.getTrueX() + size, y, z);
+                for (int z = point.getTrueZ() - size + 1; z <= point.getTrueZ() + size - 1; z++) {
+                    block = world.getBlockAt(point.getTrueX() - size, y, z);
                     block.setType(Material.WOOL);
                     block.setData(color);
 
-                    block = world.getBlockAt(point.getTrueX() - size, y, z);
+                    block = world.getBlockAt(point.getTrueX() + size, y, z);
                     block.setType(Material.WOOL);
                     block.setData(color);
                 }
@@ -117,24 +113,28 @@ public class RoomGenerator {
         }
     }
 
+    public void buildAndConnectRooms() {
+        byte color = (byte)random.nextInt(16);
+
+        for (Room room : this.rooms) {
+            room.buildRoom(y, color);
+        }
+    }
+
     private void addChunkRing() {
         topLeft.setLeft(topLeft.getLeft() - 1);
         topLeft.setRight(topLeft.getRight() - 1);
         bottomRight.setLeft(bottomRight.getLeft() + 1);
         bottomRight.setRight(bottomRight.getRight() + 1);
 
-//        Bukkit.getLogger().info("Generating new chunk ring...");
-//        Bukkit.getLogger().info("Top Left: " + topLeft.toString());
-//        Bukkit.getLogger().info("Bottom Right: " + bottomRight.toString());
-
         for (int x = topLeft.getLeft(); x <= bottomRight.getLeft(); x++) {
-            getOrGenerateChunk(x, topLeft.getRight());
-            getOrGenerateChunk(x, bottomRight.getRight());
+            this.availableChunks.add(getOrGenerateChunk(x, topLeft.getRight()));
+            this.availableChunks.add(getOrGenerateChunk(x, bottomRight.getRight()));
         }
 
         for (int z = topLeft.getRight() + 1; z <= bottomRight.getRight() - 1; z++) {
-            getOrGenerateChunk(topLeft.getLeft(), z);
-            getOrGenerateChunk(bottomRight.getLeft(), z);
+            this.availableChunks.add(getOrGenerateChunk(topLeft.getLeft(), z));
+            this.availableChunks.add(getOrGenerateChunk(bottomRight.getLeft(), z));
         }
     }
 
@@ -143,16 +143,16 @@ public class RoomGenerator {
         return (long)x & 4294967295L | ((long)z & 4294967295L) << 32;
     }
 
-    // Might make this void later, depending on use
+    // Re un-voided lmao
     private Chunk getOrGenerateChunk(int chunkX, int chunkZ) {
-        Long chunkPos = asLong(chunkX, chunkZ);
-        
-        if (chunkMap.containsKey(chunkPos)) {
-            return chunkMap.get(chunkPos);
+        long chunkPos = asLong(chunkX, chunkZ);
+        Chunk chunk;
+
+        if ((chunk = chunkMap.get(chunkPos)) != null) {
+            return chunk;
         } else {
-            Chunk chunk = new Chunk(chunkX, chunkZ, chunkPos);
-            chunkMap.put(chunkPos, chunk);
-            availableChunks.add(chunk);
+            chunk = new Chunk(chunkX, chunkZ, chunkPos);
+            this.chunkMap.put(chunkPos, chunk);
 
             return chunk;
         }
