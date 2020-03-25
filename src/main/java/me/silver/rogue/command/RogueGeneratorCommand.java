@@ -22,7 +22,7 @@ public class RogueGeneratorCommand extends BaseCommand {
 
             sender.sendMessage("Attempting to generate " + count + " rooms.");
             generator.generatePoints(count);
-//            generator.buildAndConnectRooms();
+            generator.buildAndConnectRooms();
         } else {
             // Because I'm too lazy to add other cases and it just doesn't matter
             sender.sendMessage("Error: Command must be executed by a player.");

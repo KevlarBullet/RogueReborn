@@ -1,5 +1,8 @@
 package me.silver.rogue.room;
 
+import java.util.HashSet;
+import java.util.Set;
+
 // The whole premise behind points is unnecessary and will probably be removed in favor of just rooms
 public class Point {
 
@@ -7,6 +10,8 @@ public class Point {
     public final int z;
     public final int size;
     public final Chunk chunk;
+
+    private Set<Point> linkedPoints = new HashSet<>();
 
     public Point(int x, int z, int size, Chunk chunk) {
         this.x = x;

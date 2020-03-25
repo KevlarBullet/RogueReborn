@@ -1,4 +1,4 @@
-package me.silver.rogue.mob;
+package me.silver.rogue.entity;
 
 public interface iRogueMob {
 

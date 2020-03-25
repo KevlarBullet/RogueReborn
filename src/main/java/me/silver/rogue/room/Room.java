@@ -23,25 +23,25 @@ public class Room {
         this.cornerTwo = cornerTwo;
     }
 
-    public void buildRoom(int y, byte color) {
+    public void buildRoom(byte color) {
         Block block;
 
         for (int x = (int)cornerOne.getX(); x <= (int)cornerTwo.getX(); x++) {
-            block = world.getBlockAt(x, y, (int)cornerOne.getZ());
+            block = world.getBlockAt(x, (int)cornerOne.getY(), (int)cornerOne.getZ());
             block.setType(Material.WOOL);
             block.setData(color);
 
-            block = world.getBlockAt(x, y, (int)cornerTwo.getZ());
+            block = world.getBlockAt(x, (int)cornerOne.getY(), (int)cornerTwo.getZ());
             block.setType(Material.WOOL);
             block.setData(color);
         }
 
         for (int z = (int)cornerOne.getZ() + 1; z <= (int)cornerTwo.getZ() - 1; z++) {
-            block = world.getBlockAt((int)cornerOne.getX(), y, z);
+            block = world.getBlockAt((int)cornerOne.getX(), (int)cornerOne.getY(), z);
             block.setType(Material.WOOL);
             block.setData(color);
 
-            block = world.getBlockAt((int)cornerTwo.getX(), y, z);
+            block = world.getBlockAt((int)cornerTwo.getX(), (int)cornerOne.getY(), z);
             block.setType(Material.WOOL);
             block.setData(color);
         }
