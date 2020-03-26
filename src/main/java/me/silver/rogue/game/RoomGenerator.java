@@ -1,5 +1,8 @@
-package me.silver.rogue.room;
+package me.silver.rogue.game;
 
+import me.silver.rogue.room.Chunk;
+import me.silver.rogue.room.Point;
+import me.silver.rogue.room.Room;
 import me.silver.rogue.util.Pair;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
@@ -31,6 +34,7 @@ public class RoomGenerator {
         this.bottomRight = new Pair<>(chunkOriginX, chunkOriginZ);
     }
 
+    // TODO: Refactor so that unintended classes can't access this method
     public void generatePoints(int count) {
         // Generate center chunk
         availableChunks.add(getOrGenerateChunk(chunkOriginX, chunkOriginZ));
@@ -124,7 +128,7 @@ public class RoomGenerator {
     }
 
     // Re un-voided lmao
-    private Chunk getOrGenerateChunk(int chunkX, int chunkZ) {
+    public Chunk getOrGenerateChunk(int chunkX, int chunkZ) {
         long chunkPos = asLong(chunkX, chunkZ);
         Chunk chunk;
 
@@ -136,7 +140,7 @@ public class RoomGenerator {
         return chunk;
     }
 
-    private Chunk getChunk(int chunkX, int chunkZ) {
+    public Chunk getChunk(int chunkX, int chunkZ) {
         Long chunkPos = asLong(chunkX, chunkZ);
 
         return chunkMap.get(chunkPos);

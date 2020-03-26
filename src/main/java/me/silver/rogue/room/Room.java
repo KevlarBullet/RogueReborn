@@ -23,6 +23,7 @@ public class Room {
         this.cornerTwo = cornerTwo;
     }
 
+    // TODO: Async room building?
     public void buildRoom(byte color) {
         Block block;
 

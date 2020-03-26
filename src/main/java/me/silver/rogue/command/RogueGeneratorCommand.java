@@ -3,8 +3,8 @@ package me.silver.rogue.command;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
-import me.silver.rogue.room.RoomGenerator;
-import org.bukkit.Bukkit;
+import me.silver.rogue.game.GameInstance;
+import me.silver.rogue.game.GameManager;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,11 +18,12 @@ public class RogueGeneratorCommand extends BaseCommand {
             Player player = (Player)sender;
             Location location = player.getLocation();
 
-            RoomGenerator generator = new RoomGenerator(Bukkit.getWorld("world"), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            GameInstance testInstance = GameManager.startGame(location.getWorld());
+
+            GameManager.addPlayerToGame(testInstance, GameManager.getRoguePlayer(player));
+            testInstance.generateRooms(location.getBlockX(), location.getBlockY(), location.getBlockZ(), count);
 
             sender.sendMessage("Attempting to generate " + count + " rooms.");
-            generator.generatePoints(count);
-            generator.buildAndConnectRooms();
         } else {
             // Because I'm too lazy to add other cases and it just doesn't matter
             sender.sendMessage("Error: Command must be executed by a player.");

@@ -1,9 +1,7 @@
 package me.silver.rogue.entity;
 
-import me.silver.rogue.GameInstance;
+import me.silver.rogue.game.GameInstance;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class RoguePlayer {
 

@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Chunk {
 
-    final int chunkX;
-    final int chunkZ;
-    final long chunkPos;
+    public final int chunkX;
+    public final int chunkZ;
+    public final long chunkPos;
 
     // Contains both points whose generated rooms would overlap this chunk and points directly within this chunk
     private ArrayList<Point> points = new ArrayList<>();
@@ -18,16 +18,12 @@ public class Chunk {
         this.chunkPos = chunkPos;
     }
 
-    List<Point> getPoints() {
+    public List<Point> getPoints() {
         return this.points;
     }
 
-    void addPoint(Point point) {
+    public void addPoint(Point point) {
         this.points.add(point);
-    }
-
-    static long toLong(int chunkX, int chunkZ) {
-        return ((long) chunkX | ((long) chunkZ) << 32);
     }
 
 }
